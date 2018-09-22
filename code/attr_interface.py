@@ -1,8 +1,6 @@
-import pandas as pd
-import csv
 import numpy as np
 import pickle
-from config import META_PKL, attr_data_file
+from config import attr_data_file
 from normalize import attr_normal_from_file
 from create_pickle_file import AB_META
 np.random.seed(0)

@@ -63,7 +63,6 @@ def spilt_class_file(file_path):
 # text_dict = None
 classes = spilt_class_file(os.path.join(DATAB_ALL_DIR, 'label_list.txt'))
 
-
 # print(key_words)
 
 
@@ -71,42 +70,10 @@ classes = spilt_class_file(os.path.join(DATAB_ALL_DIR, 'label_list.txt'))
 #     idx = classes.index(class_name)
 #     return text_vec[idx]
 
+attr_or_word2vec = 'word2vec'  # 'attr' 'word2vec'
+
 
 def train_dem_main(epoches=100000):
-    def compute_accuracy1(test_word, test_visual, test_id, test_label):
-        global left_w1
-        word_pre = sess.run(left_w1, feed_dict={word_features: test_word})
-        test_id = np.squeeze(np.asarray(test_id))
-        outpre = [0] * test_visual.shape[0]
-        test_label = np.squeeze(np.asarray(test_label))
-        test_label = test_label.astype("float32")
-        for i in range(test_visual.shape[0]):
-            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1)
-            outpre[i] = outputLabel
-        print(outpre)
-        correct_prediction = tf.equal(outpre, test_label)
-        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-        result = sess.run(accuracy, feed_dict={
-            word_features: test_word, visual_features: test_visual})
-        return result
-
-    def compute_accuracy2(test_word, test_visual, test_id, test_label):
-        global left_w2
-        word_pre = sess.run(left_w2, feed_dict={word_features: test_word})
-        test_id = np.squeeze(np.asarray(test_id))
-        outpre = [0] * test_visual.shape[0]
-        test_label = np.squeeze(np.asarray(test_label))
-        test_label = test_label.astype("float32")
-        for i in range(test_visual.shape[0]):
-            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1)
-            outpre[i] = outputLabel
-        print(outpre)
-        correct_prediction = tf.equal(outpre, test_label)
-        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-        result = sess.run(accuracy, feed_dict={
-            word_features: test_word, visual_features: test_visual})
-        return result
-
     def data_iterator(batch_size):
         """ A simple data iterator """
         batch_idx = 0
@@ -129,14 +96,14 @@ def train_dem_main(epoches=100000):
         visual_features_size = 1024
     # -----training parameter-----
     LOAD_CKPT = False
-    batch_size = 300000
-    split_rate = 0.2
+    batch_size = 30000
+    split_rate = 0.8
     cosin_lr = 0.0
     eu_lr = 1.0
     reg_r = 1e-5
 
     # ---------------------------
-    attr_or_word2vec = 'word2vec'  # 'attr' 'word2vec'
+
     if attr_or_word2vec == 'attr':
         fn = find_attr_vec
         embedding_size = 24
@@ -153,10 +120,11 @@ def train_dem_main(epoches=100000):
     vf_data = data['features']
     fine_names = data['fine_label_names']
     all_names = list(set(fine_names))
-    random.shuffle(all_names)
+    # random.shuffle(all_names)
     data = None
     print('Done.')
-    test_id = random.sample(range(0, len(all_names)), int(len(all_names) * split_rate))
+    # test_id = random.sample(range(0, len(all_names)), int(len(all_names) * split_rate))
+    test_id = list(i for i, _ in enumerate(all_names[int(len(all_names) * split_rate):]))
     word_pro = []
 
     test_names = []
@@ -171,6 +139,8 @@ def train_dem_main(epoches=100000):
             test_label.append(all_names.index(i))
 
     word_pro = np.asarray(word_pro)
+    print(test_names)
+    print(len(test_names))
 
     # 分离训练集和测试集
     idx = 0
@@ -203,6 +173,40 @@ def train_dem_main(epoches=100000):
     test_id = np.asarray(test_id)
     test_label = np.asarray(test_label)
 
+    def compute_accuracy1(test_word, test_visual, test_id, test_label):
+        # global left_w1
+        word_pre = sess.run(left_w1, feed_dict={word_features: test_word})
+        test_id = np.squeeze(np.asarray(test_id))
+        outpre = [0] * test_visual.shape[0]
+        test_label = np.squeeze(np.asarray(test_label))
+        test_label = test_label.astype("float32")
+        for i in range(test_visual.shape[0]):
+            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1)
+            outpre[i] = outputLabel
+        print(outpre)
+        correct_prediction = tf.equal(outpre, test_label)
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        result = sess.run(accuracy, feed_dict={
+            word_features: test_word, visual_features: test_visual})
+        return result
+
+    def compute_accuracy2(test_word, test_visual, test_id, test_label):
+        # global left_w2
+        word_pre = sess.run(left_w2, feed_dict={word_features: test_word})
+        test_id = np.squeeze(np.asarray(test_id))
+        outpre = [0] * test_visual.shape[0]
+        test_label = np.squeeze(np.asarray(test_label))
+        test_label = test_label.astype("float32")
+        for i in range(test_visual.shape[0]):
+            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1)
+            outpre[i] = outputLabel
+        print(outpre)
+        correct_prediction = tf.equal(outpre, test_label)
+        accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
+        result = sess.run(accuracy, feed_dict={
+            word_features: test_word, visual_features: test_visual})
+        return result
+
     print(
         'train_wordvec:{} train_vs:{} word_pro:{} x_test:{} test_id:{} test_label:{} '.format(train_wordvec.shape,
                                                                                               train_vs.shape,
@@ -218,14 +222,10 @@ def train_dem_main(epoches=100000):
     if not os.path.exists(dem_checkpoint_path):
         os.makedirs(dem_checkpoint_path)
     LOAD_CKPT_FILE = tf.train.latest_checkpoint(dem_checkpoint_path)
-    LATEST_CKPT = tf.train.latest_checkpoint(dem_checkpoint_path)
-    CHECK_POINT_FILES = [LATEST_CKPT]
 
     word_features = tf.placeholder(tf.float32, [None, embedding_size])
     visual_features = tf.placeholder(tf.float32, [None, visual_features_size])
-
     if DEM_MODEL == 1:
-        evaluate_fn = compute_accuracy1
         W_left_w1 = weight_variable([train_wordvec.shape[1], visual_features_size])
         b_left_w1 = bias_variable([visual_features_size])
         left_w1 = tf.matmul(word_features, W_left_w1) + b_left_w1
@@ -233,8 +233,8 @@ def train_dem_main(epoches=100000):
         regular_w = (tf.nn.l2_loss(W_left_w1) + tf.nn.l2_loss(b_left_w1))
         loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w1 - visual_features))),
                         tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w1, visual_features)))))
+        evaluate_fn = compute_accuracy1
     else:
-        evaluate_fn = compute_accuracy2
         W_left_w1 = weight_variable([train_wordvec.shape[1], 1024])
         W_left_w2 = weight_variable([1024, visual_features_size])
         b_left_w1 = bias_variable([1024])
@@ -247,6 +247,7 @@ def train_dem_main(epoches=100000):
             b_left_w2))
         loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w2 - visual_features))),
                         tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w2, visual_features)))))
+        evaluate_fn = compute_accuracy2
 
     # 岭回归
     loss_w += reg_r * regular_w

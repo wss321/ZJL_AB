@@ -11,7 +11,7 @@ import pickle
 from config import SAVE_DIR, NUM_CHANNELS, DATAB_ALL_DIR, DATAB_TRAIN_DIR, DATAA_TRAIN_DIR, DATAA_ALL_DIR
 from keras import Model
 from keras.models import load_model
-from keras_train import BAET_CLASSIFY_CKPT_FILE
+from config import BAET_CLASSIFY_CKPT_FILE
 
 if not os.path.isdir(SAVE_DIR):
     os.mkdir(SAVE_DIR)

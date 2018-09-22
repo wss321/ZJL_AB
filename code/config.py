@@ -95,8 +95,8 @@ attr_data_file = '{}/attributes_per_class.txt'.format(DATAB_ALL_DIR)  # attribut
 SAVE_DIR = PKL_DIR  # create target or not target pickle file dir
 WORD_CSV_PATH = '{}/word_embedding.csv'.format(PKL_DIR)  # save word2vec table dir
 
-TRAIN_PKL = '{}/train.pkl'.format(PKL_DIR)  # create training image data pickle file dir
-META_PKL = '{}/meta.pkl'.format(PKL_DIR)  # create label data pickle file dir
+# TRAIN_PKL = '{}/train.pkl'.format(PKL_DIR)  # create training image data pickle file dir
+# META_PKL = '{}/meta.pkl'.format(PKL_DIR)  # create label data pickle file dir
 # ---------------------------------------------------------------------------
 
 # --------- pickle file dir of saving create target and not target data ----

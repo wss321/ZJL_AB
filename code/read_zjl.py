@@ -5,7 +5,7 @@
 import pickle
 import random
 from sklearn.preprocessing import LabelBinarizer
-from config import SPLIT_RATE, TRAIN_PKL, META_PKL, PKL_DIR, SAVE_VEC_PKL, SAVE_NTTRD_PKL, SAVE_TTRD_PKL, \
+from config import SPLIT_RATE, PKL_DIR, SAVE_VEC_PKL, SAVE_NTTRD_PKL, SAVE_TTRD_PKL, \
     SAVE_ALL_LABEL_PKL
 from create_pickle_file import AB_META, AB_TRAIN_PICKLE
 

@@ -41,7 +41,7 @@ ZERO_SHOT_CLASSES = True  # Change here
 initial_learning_rate = 0.0001
 num_classes = 205
 batch_size = 16
-num_epochs = 300
+num_epochs = 100
 dropout_rate = 0.2  # for vgg19
 
 momentum = 0.0  # The momentum parameter of momentum optimizer

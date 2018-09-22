@@ -9,7 +9,7 @@ def keras_train_main():
     from training_utils import distorted_batch
 
     from config import num_classes, batch_size, MODEL_DIR, KERAS_MODEL, \
-        OPTIMIZER, initial_learning_rate
+        OPTIMIZER, initial_learning_rate, num_epochs
     from data_generator import DataGenerator
     import keras
     from keras.models import load_model
@@ -86,9 +86,8 @@ def keras_train_main():
     x_vali, y_vali = get_fitdata(vali_data, IMAGE_SIZE, use_ebedding=False, send_raw_str=False, distort=False)
     vali_data = None
 
-    epochs = 30
     h = model.fit_generator(generator=train_generator, verbose=1,
-                            epochs=epochs, callbacks=callback_lists,
+                            epochs=num_epochs, callbacks=callback_lists,
                             validation_data=(x_vali, y_vali))
     # model.evaluate(x_vali, y_vali)
     with open('train_history,txt', 'a') as f:

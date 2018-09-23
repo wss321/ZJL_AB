@@ -6,11 +6,12 @@ from tensorflow.contrib.image import rotate
 
 from attr_interface import find_attr_vec
 from word2vec_interface import find_word_vec
-from config import ALL_LABLES_FILE, WV_OR_ATTR, embedding_size
-from create_pickle_file import AB_META
+from config import WV_OR_ATTR, embedding_size
+from create_pickle_file import META
+
 np.random.seed(0)
 tf.set_random_seed(0)
-meta = pickle.load(open(AB_META, 'rb'))
+meta = pickle.load(open(META, 'rb'))
 all_labels = meta['fine_label_names']
 
 

@@ -62,7 +62,7 @@ def spilt_class_file(file_path):
 classes = spilt_class_file(os.path.join(DATAB_ALL_DIR, 'label_list.txt'))
 
 
-def train_dem_main(epoches=2000):
+def train_dem_main(epoches=1000):
     def data_iterator(batch_size):
         """ A simple data iterator """
         # shuffle labels and features

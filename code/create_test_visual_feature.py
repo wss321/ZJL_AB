@@ -1,16 +1,13 @@
 # Code to create the visual feature of test image
-from keras.applications.vgg19 import preprocess_input
 
 import numpy as np
-import tqdm
 import os
-from keras.preprocessing import image
 import pickle
-from config import SAVE_DIR, DATAB_ALL_DIR, TEST_DATA_DIR
+from config import SAVE_DIR
 from keras import Model
 
 from keras.models import load_model
-from config import BAET_CLASSIFY_CKPT_FILE
+from config import BEST_CLASSIFY_CKPT_FILE
 
 if not os.path.isdir(SAVE_DIR):
     os.mkdir(SAVE_DIR)
@@ -29,37 +26,19 @@ def spilt_file(file_path):
 
 
 def create_test_visual_feature_main():
-    from config import KERAS_MODEL as model
-    if model == 'densenet':
-        VISUAL_SIZE = 504
-        last_layer = 'global_average_pooling2d_1'
-    else:
-        last_layer = 'batch_normalization_19'
-        VISUAL_SIZE = 1024
-
-    data_test = open(os.path.join(DATAB_ALL_DIR, 'image.txt'))
-    data_test = data_test.readlines()
-
-    filenames = []
-    for line in data_test:
-        filenames.append(line.split()[0])
-
-    path = TEST_DATA_DIR
-
-    model = load_model(BAET_CLASSIFY_CKPT_FILE)
+    from config import VISUAL_SIZE, last_layer
+    from create_pickle_file import TEST_PICKLE, IMAGE_SIZE, NUM_CHANNELS
+    from read_zjl import read_pickle_file
+    print('LOADING TEST DATA....')
+    X = read_pickle_file(TEST_PICKLE).reshape(-1, IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS)
+    print('LOADING CLASSIFIER AT {} ...'.format(BEST_CLASSIFY_CKPT_FILE))
+    model = load_model(BEST_CLASSIFY_CKPT_FILE)
     model = Model(inputs=model.input, outputs=model.get_layer(last_layer).output)
+    print('Creating Test Feature...')
+    features = model.predict(X, verbose=1).reshape(-1, VISUAL_SIZE)
 
-    features = []
-    for fname in tqdm.tqdm(filenames, desc='Creating Corresponding Data'):
-        img = image.load_img(os.path.join(path, fname))
-        x = image.img_to_array(img)
-        x = np.expand_dims(x, axis=0)
-        x = preprocess_input(x)
-        features.append(model.predict(x).reshape(VISUAL_SIZE))
-    features = np.asarray(features, dtype='float32')
-    features_f = open(TEST_FEATURE_PATH, 'wb')
-    pickle.dump({'features': features}, features_f, protocol=4)
-    features_f.close()
+    with open(TEST_FEATURE_PATH, 'wb') as features_f:
+        pickle.dump({'features': features}, features_f, protocol=4)
     print("Done.")
 
 

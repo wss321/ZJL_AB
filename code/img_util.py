@@ -5,6 +5,7 @@ from config import NUM_CHANNELS
 
 np.random.seed(0)
 
+
 def image_array_to_image_matrix(image_array):
     """Gets a image matrix from CIFAR-100 and turns it into a matrix suitable for CNN Networks"""
     image_size = int(np.sqrt(np.prod(np.shape(image_array)) / NUM_CHANNELS))
@@ -19,6 +20,8 @@ def image_matrix_to_image_array(image_matrix):
 
     image_array = image_matrix.reshape(image_size * image_size * NUM_CHANNELS, )
     return image_array
+
+
 def visualize_image(image):
     """Displays the image in a zjl-230 matrix"""
     num_dims = len(np.shape(image))

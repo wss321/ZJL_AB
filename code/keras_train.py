@@ -16,15 +16,15 @@ def keras_train_main():
     from keras.optimizers import SGD, Adam
     from keras.callbacks import ModelCheckpoint
     from keras.callbacks import TensorBoard, EarlyStopping
-    from config import TB_LOG, BAET_CLASSIFY_CKPT_FILE, IMAGE_SIZE, NUM_CHANNELS, TRAINING_DIR, nb_block, depth, \
-        growth_rate, dropout_rate, reduction, vgg_norm_rate, resize
+    from config import TB_LOG, BEST_CLASSIFY_CKPT_FILE, IMAGE_SIZE, NUM_CHANNELS, TRAINING_DIR, nb_block, depth, \
+        growth_rate, dropout_rate, reduction, vgg_norm_rate, resize, CLASSIFIER_LOAD_CKPT, \
+        CLASSIFIER_TRAIN_TEST_SPLIT_RATE
     from batch_making import get_fitdata
     from densenet_keras import DenseNet
     from vgg_bn import VGG_BN
     from batch_making import target_train_data
     random.seed(0)
     tf.set_random_seed(0)
-    LOAD_CKPT = False
     tf.reset_default_graph()
     tfconfig = tf.ConfigProto()
     tfconfig.gpu_options.allow_growth = True
@@ -34,7 +34,7 @@ def keras_train_main():
 
     # 回调函数
     tensorboard = TensorBoard(log_dir=TB_LOG)
-    checkpoint = ModelCheckpoint(filepath=BAET_CLASSIFY_CKPT_FILE, monitor='val_acc', mode='auto',
+    checkpoint = ModelCheckpoint(filepath=BEST_CLASSIFY_CKPT_FILE, monitor='val_acc', mode='auto',
                                  save_best_only='True')
     losscalback = keras.callbacks.ReduceLROnPlateau(monitor='loss', patience=1, verbose=1)
     earlystop = EarlyStopping(monitor='val_loss', patience=10, verbose=0, mode='auto')
@@ -45,14 +45,12 @@ def keras_train_main():
     else:
         optm = SGD(lr=classifier_init_lr)
 
-    if LOAD_CKPT and os.path.exists(MODEL_DIR):
+    if CLASSIFIER_LOAD_CKPT and os.path.exists(MODEL_DIR):
         print("LOADING MODEL AT {}".format(MODEL_DIR))
         model = load_model(MODEL_DIR)
-        resize = 64
         distort_op = distorted_batch(x, IMAGE_SIZE, resize)
         print("DONE.")
     elif KERAS_MODEL == 'densenet':
-        IMAGE_SIZE = 64
         model = DenseNet((IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS), depth=depth, nb_dense_block=nb_block,
                          growth_rate=growth_rate, bottleneck=True, dropout_rate=dropout_rate, reduction=reduction,
                          classes=num_classes)
@@ -60,21 +58,17 @@ def keras_train_main():
         model.compile(optimizer=optm, loss='categorical_crossentropy', metrics=['accuracy'])  #
         model.summary()
     else:
-        IMAGE_SIZE = 64
         model = VGG_BN(num_classes, norm_rate=vgg_norm_rate)
         distort_op = distorted_batch(x, IMAGE_SIZE, resize)
         model.compile(optimizer=optm, loss='categorical_crossentropy', metrics=['accuracy'])  #
         model.summary()
 
     # 加载数据
-    TRAIN_TEST_SPLIT_RATE = 0.8
-    # for i in target_train_data:
-    #     print(i[1])
     random.shuffle(target_train_data)
 
     data_len = len(target_train_data)
-    train_data = target_train_data[:int(data_len * TRAIN_TEST_SPLIT_RATE)]
-    vali_data = target_train_data[int(data_len * TRAIN_TEST_SPLIT_RATE):]
+    train_data = target_train_data[:int(data_len * CLASSIFIER_TRAIN_TEST_SPLIT_RATE)]
+    vali_data = target_train_data[int(data_len * CLASSIFIER_TRAIN_TEST_SPLIT_RATE):]
     print(len(train_data))
     print(len(vali_data))
 

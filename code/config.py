@@ -12,6 +12,13 @@ OPTIMIZER = 'adam'  # Choose optimizer: 'sgd' 'adam'
 KERAS_MODEL = 'densenet'  # 'own_model' 'densenet'
 
 DEM_MODEL = 2  # 2
+
+if KERAS_MODEL == 'densenet':
+    VISUAL_SIZE = 504
+    last_layer = 'global_average_pooling2d_1'
+else:
+    last_layer = 'batch_normalization_19'
+    VISUAL_SIZE = 1024
 # --------------------------------------------------------------------------------------------------------------------
 
 DISTORT = True  # whether use image distort for data argument
@@ -22,11 +29,18 @@ ZERO_SHOT_CLASSES = True  # Change here
 
 # -------- Training Parameter----------------
 
+DATASET = 'B'  # 'A' 'B' 'AB'
+if DATASET == 'AB':
+    num_classes = 205
+elif DATASET == 'A':
+    num_classes = 190
+else:
+    num_classes = 164
 classifier_init_lr = 1e-4
-num_classes = 205
-classifier_batch_size = 16
+CLASSIFIER_LOAD_CKPT = False
+classifier_batch_size = 8
 classifier_num_epochs = 100
-
+CLASSIFIER_TRAIN_TEST_SPLIT_RATE = 0.8
 IMAGE_SIZE = 64
 resize = 64
 NUM_CHANNELS = 3  # the number of image channel
@@ -44,7 +58,7 @@ if TRAIN == 'class':
 
 CLOSE_WORD_NUM = 5  # Quantitative parameter
 
-# -----HyperParameter of DenseNet in models.py -------
+# -----HyperParameter of DenseNet model -------
 
 depth = 64
 nb_block = 4  # how many (dense block + Transition Layer) ?
@@ -53,7 +67,7 @@ dropout_rate = 0.1
 reduction = 0.0
 # ----------------------------------------------------
 
-# -----HyperParameter of VGG_BN in models.py -------
+# -----HyperParameter of VGG_BN model -------
 
 vgg_norm_rate = 0.0
 # ----------------------------------------------------
@@ -61,11 +75,11 @@ vgg_norm_rate = 0.0
 # DEM training parameters
 DEM_LOAD_CKPT = False
 dem_init_lr = 1e-4
-dem_batch_size = 30000
+dem_batch_size = 20000
 dem_split_rate = 0.9
 dem_cosine_loss_r = 0.0
 dem_eu_loss_r = 1.0
-dem_reg_loss_r = 0.0  # 1e-5
+dem_reg_loss_r = 1e-4
 dem_hidden_layer = 1024
 dem_dis_func = 'cosine'  # 'mix' or 'euclidean' 'cosine'
 dem_attr_word2vec_concentrate = 'concentrate'  # 'attr'  'word2vec' and 'concentrate'
@@ -83,6 +97,9 @@ DATAB_TRAIN_DIR = r'../data/DatasetB/train'  # Training image data dir
 TEST_DATA_DIR = r'../data/DatasetB/test'  # Test image data dir
 
 # --------- for kaggle -------------------------------------------------
+# TRAINING_DIR = './data'  # Training output dir
+# PKL_DIR = './data'  # the dir of the image data pickle file
+
 # DATAA_ALL_DIR = r'../input/tianchi-2018-dataset/dataseta_train_20180813/DatasetA_train_20180813/'  # Dataset dir
 # DATAA_TRAIN_DIR = r'../input/tianchi-2018-dataset/dataseta_train_20180813/DatasetA_train_20180813/train'  # Training image data dir
 # DATAB_ALL_DIR = r'../input/zjl-datasetb/datasetb_20180919/DatasetB_20180919/'  # Dataset dir
@@ -106,10 +123,6 @@ SAVE_ALL_LABEL_PKL = '{}/test_class.pickle'.format(PKL_DIR)
 SAVE_VEC_PKL = '{}/vectorizer.pickle'.format(PKL_DIR)
 # --------------------------------------------------------------------------
 
-# ---------------  for quantitative utils  -------------------------------------
-
-ALL_LABLES_FILE = '{}/all_labels.pickle'.format(PKL_DIR)
-
 # -----------------------  Create dir  -------------------------------------
 if not os.path.exists(TRAINING_DIR):
     os.makedirs(TRAINING_DIR)
@@ -119,10 +132,10 @@ if not os.path.exists(DEM_OUTPUT_FILES_FOLDER):
     os.makedirs(DEM_OUTPUT_FILES_FOLDER)
 # ----------------------------------------------------------------------------
 
-# -------- new config of keras_train ----------
-MODEL_FOLDER = r'../data/classifier/{}/{}/model/'.format(KERAS_MODEL, OPTIMIZER)  # 模型保存地址
-TB_LOG = '../data/classifier/{}/{}/log/'.format(KERAS_MODEL, OPTIMIZER)  # tensorbord 文件地址
-CKPT_PATH = '../data/classifier/{}/{}/checkoutpoint'.format(KERAS_MODEL, OPTIMIZER)  # 查看点路径
+# -------- config of keras_train classifier ----------
+MODEL_FOLDER = r'{}/classifier/{}/{}/model/'.format(TRAINING_DIR, KERAS_MODEL, OPTIMIZER)  # 模型保存地址
+TB_LOG = '{}/classifier/{}/{}/log/'.format(TRAINING_DIR, KERAS_MODEL, OPTIMIZER)  # tensorbord 文件地址
+CKPT_PATH = '{}/classifier/{}/{}/checkoutpoint'.format(TRAINING_DIR, KERAS_MODEL, OPTIMIZER)  # 查看点路径
 
 if not os.path.exists(MODEL_FOLDER):
     os.makedirs(MODEL_FOLDER)
@@ -131,8 +144,8 @@ if not os.path.exists(TB_LOG):
 if not os.path.exists(CKPT_PATH):
     os.makedirs(CKPT_PATH)
 
-BAET_CLASSIFY_CKPT_FILE = '{}/best_one.ckpt'.format(CKPT_PATH)
-# BAET_CLASSIFY_CKPT_FILE = 'G:\kaggle-output\checkoutpointbest_one.ckpt'
+# BEST_CLASSIFY_CKPT_FILE = '{}/best_one.ckpt'.format(CKPT_PATH)
+BEST_CLASSIFY_CKPT_FILE = 'G:\kaggle-output\checkoutpointbest_one.ckpt'
 MODEL_DIR = '{}/keras_train.h5'.format(MODEL_FOLDER)
 # --------------------------------------------
 

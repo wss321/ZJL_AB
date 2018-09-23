@@ -2,10 +2,11 @@ import numpy as np
 import pickle
 from config import attr_data_file
 from normalize import attr_normal_from_file
-from create_pickle_file import AB_META
+from create_pickle_file import META
+
 np.random.seed(0)
 print('Loading attributes')
-meta = pickle.load(open(AB_META, 'rb'))
+meta = pickle.load(open(META, 'rb'))
 attrs = attr_normal_from_file(attr_data_file).set_index(0)
 # print(attrs)
 print('Loaded')

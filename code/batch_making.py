@@ -8,6 +8,7 @@ from attr_interface import find_attr_vec
 from read_zjl import SAVE_TTRD_PKL, SAVE_NTTRD_PKL, SAVE_VEC_PKL
 from config import WV_OR_ATTR, DISTORT
 from training_utils import distorted_batch
+
 random.seed(0)
 np.random.seed(0)
 

@@ -1,4 +1,4 @@
-# Code to predict the DEM
+# Code to predict test data using DEM
 import os
 import tensorflow as tf
 import tqdm
@@ -6,40 +6,14 @@ import numpy as np
 import pickle
 from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL, ZERO_SHOT_CLASSES, SUBMIT_PATH
 import pandas as pd
-from create_pickle_file import spilt_file, AB_META
+from create_pickle_file import spilt_file, META
 from create_test_visual_feature import TEST_FEATURE_PATH
-from train_DEM import dem_checkpoint_path, KERAS_MODEL, dem_attr_word2vec_concentrate, TRAIN_FEATURE_PATH, find_concentrate_vec, \
+from train_DEM import dem_checkpoint_path, KERAS_MODEL, dem_attr_word2vec_concentrate, TRAIN_FEATURE_PATH, \
+    find_concentrate_vec, weight_variable, bias_variable, \
     find_word_vec, find_attr_vec, kNNClassify, dem_hidden_layer
+from create_pickle_file import read_pickle_file
 
 np.random.seed(0)
-
-
-def read_pickle_file(filename):
-    """Reads a pickle file using the latin1 encoding"""
-    with open(filename, 'rb') as f:
-        u = pickle._Unpickler(f)
-        # u.encoding = 'latin1'
-        p = u.load()
-    return p
-
-
-def weight_variable(shape):
-    initial = tf.truncated_normal(shape, stddev=0.1)
-    return tf.Variable(initial)
-
-
-def bias_variable(shape):
-    initial = tf.constant(0.1, shape=shape)
-    return tf.Variable(initial)
-
-
-def cosine_dis(x1, x2):
-    x1_norm = tf.sqrt(tf.reduce_sum(tf.square(x1), axis=1))
-    x2_norm = tf.sqrt(tf.reduce_sum(tf.square(x2), axis=1))
-    # 内积
-    x3_x4 = tf.reduce_sum(tf.multiply(x1, x2), axis=1)
-    dis = tf.divide(x3_x4, tf.multiply(x1_norm, x2_norm))
-    return dis
 
 
 def dem_predict_main():
@@ -82,7 +56,7 @@ def dem_predict_main():
 
     all_class = label.iloc[:, 0].tolist()
 
-    class2cid_dict = read_pickle_file(AB_META)['class2cid']
+    class2cid_dict = read_pickle_file(META)['class2cid']
 
     data = pickle.load(open(TRAIN_FEATURE_PATH, 'rb'))
     # 训练集包含的类
@@ -187,7 +161,7 @@ def dem_predict_main():
             print(fname, cid)
             string = fname + '\t' + cid + '\n'
             submit_f.write(string)
-    print('Prediction Done.\nSaved to {}'.format(SUBMIT_PATH))
+    print('Prediction Done.\nSubmit file has saved to {}'.format(SUBMIT_PATH))
 
 
 if __name__ == '__main__':

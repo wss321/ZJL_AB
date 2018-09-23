@@ -6,7 +6,7 @@ import math
 import random
 from word2vec_interface import find_word_vec
 from attr_interface import find_attr_vec
-from config import SAVE_TTRD_PKL, SAVE_NTTRD_PKL, SAVE_VEC_PKL, WV_OR_ATTR, DISTORT
+from config import SAVE_TTRD_PKL, SAVE_NTTRD_PKL, SAVE_VEC_PKL, WV_OR_ATTR
 from training_utils import distorted_batch
 
 random.seed(0)
@@ -18,30 +18,6 @@ not_target_train_data = pickle.load(open(SAVE_NTTRD_PKL, 'rb'))
 
 vectorizer = pickle.load(open(SAVE_VEC_PKL, 'rb'))
 print('DATA LOADED')
-#
-# used = ['goldfish', 'tarantula', 'centipede', 'goose', 'koala', 'jellyfish', 'coral', 'snail', 'slug', 'lobster',
-#         'salamander', 'stork', 'penguin', 'albatross', 'dugong', 'terrier', 'retriever', 'shepherd', 'bullfrog',
-#         'poodle', 'tabby', 'cat', 'cougar', 'lion', 'bear', 'ladybug', 'fly', 'bee', 'frog', 'grasshopper', 'cockroach',
-#         'mantis', 'dragonfly', 'monarch', 'butterfly', 'pig', 'hog', 'alligator', 'ox', 'bison', 'bighorn', 'gazelle',
-#         'camel', 'orangutan', 'chimpanzee', 'baboon', 'elephant', 'panda', 'constrictor', 'trilobite', 'scorpion',
-#         'player', 'teddy', 'car', 'go-kart', 'gondola', 'lifeboat', 'limousine', 'van', 'bus', 'sportscar', 'trunks',
-#         'rickshaw', 'wagon', 'train', 'convertible', 'crane', 'tractor', 'trolleybus', 'coat', 'kimono', 'uniform',
-#         'miniskirt', 'poncho', 'sock', 'sombrero', 'gown', 'apron', 'bikini', 'bowtie', 'cardigan', 'stocking',
-#         'vestment', 'cucumber', 'potato', 'cauliflower', 'pepper', 'mushroom', 'orange', 'banana', 'pomegranate',
-#         'acorn', 'bottle', 'teapot', 'jug', 'spoon', 'plate', 'pan', 'mask', 'hourglass', 'ipod', 'lampshade', 'mower',
-#         'compass', 'nail', 'brace', 'meter', 'phone', 'plunger', 'pole', 'wheel', 'projectile', 'reel', 'refrigerator',
-#         'remote-control', 'snorkel', 'heater', 'web', 'stopwatch', 'stick', 'abacus', 'bannister', 'barrel', 'bathtub',
-#         'beaker', 'binoculars', 'broom', 'candle', 'machine', 'keyboard', 'torch', 'turnstile', 'wok', 'drumstick',
-#         'dumbbell', 'flagpole', 'fountain', 'maypole', 'obelisk', 'oboe', 'organ', 'fence', 'bag', 'chair', 'ball',
-#         'sandal', 'scoreboard', 'sunglasses', 'bridge', 'altar', 'backpack', 'barbershop', 'barn', 'basketball',
-#         'beacon', 'birdhouse', 'brass', 'bucket', 'shop', 'cannon', 'chain', 'widow', 'chest', 'dwelling',
-#         'confectionery', 'dam', 'desk', 'table', 'syringe', 'thatch', 'arch', 'umbrella', 'viaduct', 'volleyball',
-#         'tower', 'book', 'guacamole', 'icecream', 'lolly', 'pretzel', 'lemon', 'loaf', 'pizza', 'potpie', 'espresso',
-#         'alp', 'cliff', 'reef', 'lakeside', 'seashore']
-# v = vectorizer.transform(used)
-# print(v)
-# print(v.shape)
-# print(vectorizer.inverse_transform(np.asarray([v[0]])))
 
 
 def adjust_data(image_array, image_size):

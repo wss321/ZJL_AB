@@ -7,18 +7,9 @@ import random
 from sklearn.preprocessing import LabelBinarizer
 from config import SPLIT_RATE, PKL_DIR, SAVE_VEC_PKL, SAVE_NTTRD_PKL, SAVE_TTRD_PKL, \
     SAVE_ALL_LABEL_PKL
-from create_pickle_file import AB_META, AB_TRAIN_PICKLE
+from create_pickle_file import META, TRAIN_PICKLE, read_pickle_file
 
 random.seed(0)
-
-
-def read_pickle_file(filename):
-    """Reads a pickle file using the latin1 encoding"""
-    with open(filename, 'rb') as f:
-        u = pickle._Unpickler(f)
-        # u.encoding = 'latin1'
-        p = u.load()
-    return p
 
 
 def separate_target_data(zjl_dict, used_labels):
@@ -91,8 +82,8 @@ def separated_used_labels(coarse_to_fine_correspondence, tar_rate=SPLIT_RATE):
 def read_zjl_main():
     # Create datasets
     print('Reading Data...')
-    zjl230_train_dict = read_pickle_file(AB_TRAIN_PICKLE)  # TRAIN_PKL
-    zjl230_meta = read_pickle_file(AB_META)  # META_PKL
+    zjl230_train_dict = read_pickle_file(TRAIN_PICKLE)  # TRAIN_PKL
+    zjl230_meta = read_pickle_file(META)  # META_PKL
     print(zjl230_meta['fine_label_names'])
     print(len(zjl230_train_dict['fine_labels']))
     print('Date read')

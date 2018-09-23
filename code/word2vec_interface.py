@@ -3,11 +3,13 @@ from sklearn.decomposition import pca
 import pandas as pd
 from config import word2vec_data_file
 from normalize import word2vec_norm_from_file
+
 print('Loading glove model')
 words = word2vec_norm_from_file(word2vec_data_file).set_index(0)
 print('Loaded')
 norm_mean = 1  # 5.5293
 np.random.seed(0)
+
 
 def find_norm_mean():
     """Find the mean norm of the word2vec representations"""

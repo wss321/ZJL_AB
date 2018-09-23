@@ -1,9 +1,10 @@
 import pandas as pd
 import numpy as np
 import os
-from config import DATAB_ALL_DIR, SAVE_DIR
-import csv
+from config import DATAB_ALL_DIR
+
 np.random.seed(0)
+
 
 def normalline(data):
     for i, cs in enumerate(np.sum(data, axis=1).values):

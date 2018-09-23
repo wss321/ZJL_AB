@@ -120,9 +120,9 @@ if not os.path.exists(DEM_OUTPUT_FILES_FOLDER):
 # ----------------------------------------------------------------------------
 
 # -------- new config of keras_train ----------
-MODEL_FOLDER = r'../data/keras/{}/{}/model/'.format(KERAS_MODEL, OPTIMIZER)  # 模型保存地址
-TB_LOG = '../data/keras/{}/{}/log/'.format(KERAS_MODEL, OPTIMIZER)  # tensorbord 文件地址
-CKPT_PATH = '../data/keras/{}/{}/checkoutpoint'.format(KERAS_MODEL, OPTIMIZER)  # 查看点路径
+MODEL_FOLDER = r'../data/classifier/{}/{}/model/'.format(KERAS_MODEL, OPTIMIZER)  # 模型保存地址
+TB_LOG = '../data/classifier/{}/{}/log/'.format(KERAS_MODEL, OPTIMIZER)  # tensorbord 文件地址
+CKPT_PATH = '../data/classifier/{}/{}/checkoutpoint'.format(KERAS_MODEL, OPTIMIZER)  # 查看点路径
 
 if not os.path.exists(MODEL_FOLDER):
     os.makedirs(MODEL_FOLDER)

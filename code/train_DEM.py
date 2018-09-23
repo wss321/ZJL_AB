@@ -6,18 +6,18 @@ import tqdm
 import numpy as np
 from kNN_cosine_or_euclideanl import kNNClassify
 from training_utils import print_in_file
-from word2vec_interface import find_word_vec, find_pca_word_vec
+from word2vec_interface import find_word_vec
 from attr_interface import find_attr_vec
 import pickle
-from config import OUTPUT_FILES_FOLDER, SAVE_DIR, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL
+from config import OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL, TRAINING_DIR
 from create_train_visual_feature import TRAIN_FEATURE_PATH
 
 tf.set_random_seed(0)
 random.seed(0)
 np.random.seed(0)
 
-OUTPUT_FILE_NAME = OUTPUT_FILES_FOLDER + '/pretrain_output.txt'
-dem_checkpoint_path = 'DEM_OUTPUT/'
+OUTPUT_FILE_NAME = OUTPUT_FILES_FOLDER + '/dem_train_output.txt'
+dem_checkpoint_path = os.path.join(OUTPUT_FILES_FOLDER, 'DEM_OUTPUT')
 
 
 def read_pickle_file(filename):
@@ -265,7 +265,7 @@ def train_dem_main(epoches=100000):
         # Load the pretrained weights into the non-trainable layer
         if LOAD_CKPT and LOAD_CKPT_FILE:
             print_in_file('Loading checkpoint at {}'.format(LOAD_CKPT_FILE), OUTPUT_FILE_NAME)
-            saver.restore(sess, 'DEM_OUTPUT/latest_/epoch1860-val_acc0.0686.ckpt')  # LOAD_CKPT_FILE
+            saver.restore(sess, LOAD_CKPT_FILE)  # LOAD_CKPT_FILE
         step = 0
         for epoch in range(epoches):
             iter_ = data_iterator(batch_size)
@@ -279,7 +279,7 @@ def train_dem_main(epoches=100000):
                     "Epoch:{}/{} - Val acc = {}".format(epoch, epoches, acc), OUTPUT_FILE_NAME)
                 if epoch % 10 == 0:
                     saver.save(sess=sess,
-                               save_path='{}/epoch{}-val_acc{:.4f}.ckpt'.format(dem_checkpoint_path, epoch, float(acc)))
+                               save_path='{}/epoch{}_val_acc{:.4f}.ckpt'.format(dem_checkpoint_path, epoch, float(acc)))
 
 
 if __name__ == '__main__':

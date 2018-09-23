@@ -7,7 +7,7 @@ from kNN_cosine_or_euclideanl import kNNClassify
 from word2vec_interface import find_word_vec
 from attr_interface import find_attr_vec
 import pickle
-from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL,ZERO_SHOT_CLASSES
+from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL, ZERO_SHOT_CLASSES
 import pandas as pd
 from create_pickle_file import spilt_file, AB_META
 from train_DEM import dem_checkpoint_path

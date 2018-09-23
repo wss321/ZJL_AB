@@ -111,15 +111,9 @@ SAVE_VEC_PKL = '{}/vectorizer.pickle'.format(PKL_DIR)
 
 ALL_LABLES_FILE = '{}/all_labels.pickle'.format(PKL_DIR)
 OUTPUT_FILES = ['result_zsl_only']
-# --------------------------------------------------------------------------
-
-
-FOLDER_TO_SAVE = 'Visualize/{}/{}'.format(WV_OR_ATTR, TF_MODEL)  # dir of saving visualize result(image)
 
 # -----------------------  Create dir  -------------------------------------
 
-if not os.path.exists(FOLDER_TO_SAVE):
-    os.makedirs(FOLDER_TO_SAVE)
 if not os.path.exists(filewriter_path):
     os.makedirs(filewriter_path)
 if not os.path.exists(checkpoint_path):

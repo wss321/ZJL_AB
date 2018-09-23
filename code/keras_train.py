@@ -16,7 +16,7 @@ def keras_train_main():
     from keras.optimizers import SGD, Adam
     from keras.callbacks import ModelCheckpoint
     from keras.callbacks import TensorBoard, EarlyStopping
-    from config import TB_LOG, BAET_CLASSIFY_CKPT_FILE, IMAGE_SIZE, NUM_CHANNELS
+    from config import TB_LOG, BAET_CLASSIFY_CKPT_FILE, IMAGE_SIZE, NUM_CHANNELS,TRAINING_DIR
     from batch_making import get_fitdata
     from densenet_keras import DenseNet
     from vgg_bn import VGG_BN
@@ -54,7 +54,7 @@ def keras_train_main():
         IMAGE_SIZE = 64
         model = DenseNet((IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS), depth=64, nb_dense_block=4,
                          growth_rate=12, bottleneck=True, dropout_rate=0.1, reduction=0.0, classes=num_classes)
-        resize = 80
+        resize = 64
         distort_op = distorted_batch(x, IMAGE_SIZE, resize)
         model.compile(optimizer=optm, loss='categorical_crossentropy', metrics=['accuracy'])  #
         model.summary()
@@ -90,7 +90,7 @@ def keras_train_main():
                             epochs=num_epochs, callbacks=callback_lists,
                             validation_data=(x_vali, y_vali))
     # model.evaluate(x_vali, y_vali)
-    with open('train_history,txt', 'a') as f:
+    with open(os.path.join(TRAINING_DIR,'train_history,txt'), 'a') as f:
         f.write(str(h.history) + '\n')
     model.save(MODEL_DIR)
 

@@ -3,16 +3,13 @@ import os
 import tensorflow as tf
 import tqdm
 import numpy as np
-from kNN_cosine_or_euclideanl import kNNClassify
-from word2vec_interface import find_word_vec
-from attr_interface import find_attr_vec
 import pickle
-from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL, ZERO_SHOT_CLASSES
+from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL, ZERO_SHOT_CLASSES, SUBMIT_PATH
 import pandas as pd
 from create_pickle_file import spilt_file, AB_META
-from train_DEM import dem_checkpoint_path
 from create_test_visual_feature import TEST_FEATURE_PATH
-from train_DEM import KERAS_MODEL, attr_or_word2vec, TRAIN_FEATURE_PATH
+from train_DEM import dem_checkpoint_path, KERAS_MODEL, attr_or_word2vec, TRAIN_FEATURE_PATH, find_concentrate_vec, \
+    find_word_vec, find_attr_vec, kNNClassify, classes
 
 np.random.seed(0)
 
@@ -107,11 +104,14 @@ def dem_predict_main():
     else:
         visual_features_size = 1024
     if attr_or_word2vec == 'attr':
-        fn = find_attr_vec
+        find_vec = find_attr_vec
         embedding_size = 24
     elif attr_or_word2vec == 'word2vec':
-        fn = find_word_vec
+        find_vec = find_word_vec
         embedding_size = 300
+    else:
+        find_vec = find_concentrate_vec
+        embedding_size = 324
 
     # 加载数据
     print("Loading data.")
@@ -124,7 +124,7 @@ def dem_predict_main():
     word_pro = []
 
     for name in test_class:
-        word_pro.append(fn(name))
+        word_pro.append(find_vec(name))
 
     test_label = []
     for i in test_class:
@@ -181,13 +181,13 @@ def dem_predict_main():
         class_id = id_num2cid(pred)
         # print(class_id)
     test_fnames_list = spilt_file(os.path.join(DATAB_ALL_DIR, 'image.txt'))
-    with open('../data/Submit.txt', 'w') as submit_f:
+    with open(SUBMIT_PATH, 'w') as submit_f:
         for fname, cid in zip(test_fnames_list, class_id):
             fname = fname[0]
             print(fname, cid)
             string = fname + '\t' + cid + '\n'
             submit_f.write(string)
-    print('Prediction Done.')
+    print('Prediction Done.\nSaved to {}'.format(SUBMIT_PATH))
 
 
 if __name__ == '__main__':

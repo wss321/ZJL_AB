@@ -4,7 +4,7 @@ from tflearn.layers.conv import global_avg_pool
 from tensorflow.contrib.layers import batch_norm, flatten
 from tensorflow.contrib.framework import arg_scope
 from tensorflow.contrib.slim.nets import resnet_v2
-from config import nb_block, training_flag, growth_k, dropout_rate
+from config import nb_block, training_flag, depth, dropout_rate
 
 np.random.seed(0)
 tf.set_random_seed(0)
@@ -192,7 +192,7 @@ class Composite_model(object):
         elif self.model_choose == 'alexnet':
             self.image_repr_model = AlexNet(self.X, self.NUM_CLASSES)
         elif self.model_choose == 'densenet':
-            self.image_repr_model = DenseNet(self.X, self.NUM_CLASSES, nb_blocks=nb_block, filters=growth_k,
+            self.image_repr_model = DenseNet(self.X, self.NUM_CLASSES, nb_blocks=nb_block, filters=depth,
                                              dropout_rate=dropout_rate,
                                              training=tf.constant(training_flag, dtype=tf.bool))
         elif self.model_choose == 'resnet_v2_50':

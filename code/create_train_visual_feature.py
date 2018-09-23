@@ -73,7 +73,6 @@ def create_train_visual_feature_main():
     # global_average_pooling2d_1
     model = load_model(BAET_CLASSIFY_CKPT_FILE)
     model = Model(inputs=model.input, outputs=model.get_layer(last_layer).output)
-    fine_label_names = label.iloc[:, 0].tolist()
     fine_labels = []
     features = []
     for i, fname in enumerate(tqdm.tqdm(filenames, desc='Creating Corresponding Data')):

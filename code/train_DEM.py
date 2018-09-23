@@ -10,15 +10,16 @@ from word2vec_interface import find_word_vec
 from attr_interface import find_attr_vec
 from concentrate_interface import find_concentrate_vec
 import pickle
-from config import OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL
+from config import DEM_OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL, dem_init_lr, lr_decay, \
+    dem_batch_size, dem_split_rate, dem_cosine_loss_r, dem_eu_loss_r, dem_reg_loss_r, dem_hidden_layer,DEM_LOAD_CKPT
 from create_train_visual_feature import TRAIN_FEATURE_PATH
 
 tf.set_random_seed(0)
 random.seed(0)
 np.random.seed(0)
 
-OUTPUT_FILE_NAME = OUTPUT_FILES_FOLDER + '/dem_train_output.txt'
-dem_checkpoint_path = os.path.join(OUTPUT_FILES_FOLDER, 'DEM_OUTPUT')
+OUTPUT_FILE_NAME = DEM_OUTPUT_FILES_FOLDER + '/dem_train_output.txt'
+dem_checkpoint_path = os.path.join(DEM_OUTPUT_FILES_FOLDER, 'DEM_OUTPUT')
 
 
 def read_pickle_file(filename):
@@ -58,26 +59,14 @@ def spilt_class_file(file_path):
     return return_data
 
 
-# text_dict = read_pickle_file('G:\Pycharmworkspace\ZSL_GAN_CVPR18\word_feature_b.pkl')
-# key_words = text_dict['words']
-# text_vec = text_dict['tf-idf']
-# text_dict = None
 classes = spilt_class_file(os.path.join(DATAB_ALL_DIR, 'label_list.txt'))
 
-# print(key_words)
+attr_or_word2vec = 'word2vec'  # 'attr' 'word2vec' and else
 
 
-# def find_text_vec(class_name):
-#     idx = classes.index(class_name)
-#     return text_vec[idx]
-
-attr_or_word2vec = 'word2vec'  # 'attr' 'word2vec'
-
-
-def train_dem_main(epoches=100000):
+def train_dem_main(epoches=2000):
     def data_iterator(batch_size):
         """ A simple data iterator """
-        batch_idx = 0
         # shuffle labels and features
         idxs = np.arange(0, len(train_vs))
         np.random.shuffle(idxs)
@@ -95,15 +84,6 @@ def train_dem_main(epoches=100000):
         visual_features_size = 504
     else:
         visual_features_size = 1024
-    # -----training parameter-----
-    LOAD_CKPT = False
-    batch_size = 30000
-    split_rate = 0.8
-    cosin_lr = 0.0
-    eu_lr = 1.0
-    reg_r = 1e-5
-    hidden_layer = 1024
-    # ---------------------------
 
     if attr_or_word2vec == 'attr':
         find_vec = find_attr_vec
@@ -114,21 +94,15 @@ def train_dem_main(epoches=100000):
     else:
         find_vec = find_concentrate_vec
         embedding_size = 324
-    # elif attr_or_word2vec == 'text':
-    #     find_vec = find_text_vec
-    #     embedding_size = text_vec.shape[1]
-
     # 加载数据
     print("Loading data.")
     data = pickle.load(open(TRAIN_FEATURE_PATH, 'rb'))
     vf_data = data['features']
     fine_names = data['fine_label_names']
     all_names = list(set(fine_names))
-    # random.shuffle(all_names)
     data = None
     print('Done.')
-    # test_id = random.sample(range(0, len(all_names)), int(len(all_names) * split_rate))
-    test_id = list(i for i, _ in enumerate(all_names[int(len(all_names) * split_rate):]))
+    test_id = list(i for i, _ in enumerate(all_names[int(len(all_names) * dem_split_rate):]))
     word_pro = []
 
     test_names = []
@@ -150,10 +124,9 @@ def train_dem_main(epoches=100000):
     idx = 0
     x_test = []
     train_data = []
-    for fine_name in tqdm.tqdm(fine_names, ):
+    for fine_name in tqdm.tqdm(fine_names):
         if fine_name not in test_names:
             train_data.append([np.asarray(vf_data[idx]), find_vec(fine_name)])
-            # print(type(vf_data[idx]))
         else:
             x_test.append(vf_data[idx])
         idx += 1
@@ -164,7 +137,6 @@ def train_dem_main(epoches=100000):
     train_vs = []
 
     random.shuffle(train_data)
-    # train_data = np.asarray(train_data)
 
     for i in train_data:
         train_wordvec.append(i[1])
@@ -234,14 +206,14 @@ def train_dem_main(epoches=100000):
         left_w1 = tf.matmul(word_features, W_left_w1) + b_left_w1
 
         regular_w = (tf.nn.l2_loss(W_left_w1) + tf.nn.l2_loss(b_left_w1))
-        loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w1 - visual_features))),
-                        tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w1, visual_features)))))
+        loss_w = tf.add(tf.multiply(dem_eu_loss_r, tf.reduce_mean(tf.square(left_w1 - visual_features))),
+                        tf.multiply(dem_cosine_loss_r, tf.reduce_mean(tf.square(cosine_dis(left_w1, visual_features)))))
         evaluate_fn = compute_accuracy1
     elif DEM_MODEL == 2:
         print('------ USING DEM MODEL 2 --------- ')
-        W_left_w1 = weight_variable([train_wordvec.shape[1], hidden_layer])
-        W_left_w2 = weight_variable([hidden_layer, visual_features_size])
-        b_left_w1 = bias_variable([hidden_layer])
+        W_left_w1 = weight_variable([train_wordvec.shape[1], dem_hidden_layer])
+        W_left_w2 = weight_variable([dem_hidden_layer, visual_features_size])
+        b_left_w1 = bias_variable([dem_hidden_layer])
         b_left_w2 = bias_variable([visual_features_size])
 
         left_w1 = tf.nn.relu(tf.matmul(word_features, W_left_w1) + b_left_w1)
@@ -249,14 +221,14 @@ def train_dem_main(epoches=100000):
 
         regular_w = (tf.nn.l2_loss(W_left_w1) + tf.nn.l2_loss(b_left_w1) + tf.nn.l2_loss(W_left_w2) + tf.nn.l2_loss(
             b_left_w2))
-        loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w2 - visual_features))),
-                        tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w2, visual_features)))))
+        loss_w = tf.add(tf.multiply(dem_eu_loss_r, tf.reduce_mean(tf.square(left_w2 - visual_features))),
+                        tf.multiply(dem_cosine_loss_r, tf.reduce_mean(tf.square(cosine_dis(left_w2, visual_features)))))
         evaluate_fn = compute_accuracy2
     else:
         print('------ USING DEM MODEL 2 --------- ')
-        W_left_w1 = weight_variable([train_wordvec.shape[1], hidden_layer])
-        W_left_w2 = weight_variable([hidden_layer, visual_features_size])
-        b_left_w1 = bias_variable([hidden_layer])
+        W_left_w1 = weight_variable([train_wordvec.shape[1], dem_hidden_layer])
+        W_left_w2 = weight_variable([dem_hidden_layer, visual_features_size])
+        b_left_w1 = bias_variable([dem_hidden_layer])
         b_left_w2 = bias_variable([visual_features_size])
 
         left_w1 = tf.nn.relu(tf.matmul(word_features, W_left_w1) + b_left_w1)
@@ -264,17 +236,16 @@ def train_dem_main(epoches=100000):
 
         regular_w = (tf.nn.l2_loss(W_left_w1) + tf.nn.l2_loss(b_left_w1) + tf.nn.l2_loss(W_left_w2) + tf.nn.l2_loss(
             b_left_w2))
-        loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w2 - visual_features))),
-                        tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w2, visual_features)))))
+        loss_w = tf.add(tf.multiply(dem_eu_loss_r, tf.reduce_mean(tf.square(left_w2 - visual_features))),
+                        tf.multiply(dem_cosine_loss_r, tf.reduce_mean(tf.square(cosine_dis(left_w2, visual_features)))))
         evaluate_fn = compute_accuracy2
 
     # 岭回归
-    loss_w += reg_r * regular_w
+    loss_w += dem_reg_loss_r * regular_w
     global_step = tf.Variable(0)
-    learning_rate = 0.0001
-    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss_w, global_step=global_step)
+    train_step = tf.train.AdamOptimizer(learning_rate=dem_init_lr).minimize(loss_w, global_step=global_step)
 
-    decay = tf.train.exponential_decay(learning_rate,
+    decay = tf.train.exponential_decay(dem_init_lr,
                                        global_step,
                                        decay_steps=10,
                                        decay_rate=0.8,
@@ -287,13 +258,14 @@ def train_dem_main(epoches=100000):
         # Initialize all variables
         sess.run(tf.global_variables_initializer())
         print_in_file('--------------------------Start Training--------------------------', OUTPUT_FILE_NAME)
-        # Load the pretrained weights into the non-trainable layer
-        if LOAD_CKPT and LOAD_CKPT_FILE:
+        # Load checkoutpoint
+        if DEM_LOAD_CKPT and LOAD_CKPT_FILE:
             print_in_file('Loading checkpoint at {}'.format(LOAD_CKPT_FILE), OUTPUT_FILE_NAME)
             saver.restore(sess, LOAD_CKPT_FILE)  # LOAD_CKPT_FILE
         for epoch in range(epoches):
-            iter_ = data_iterator(batch_size)
-            sess.run(decay, feed_dict={global_step: epoch})
+            iter_ = data_iterator(dem_batch_size)
+            if lr_decay:
+                sess.run(decay, feed_dict={global_step: epoch})
             for word_batch_val, visual_batch_val in iter_:
                 sess.run(train_step, feed_dict={word_features: word_batch_val, visual_features: visual_batch_val})
                 train_loss = sess.run(loss_w,

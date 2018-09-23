@@ -74,6 +74,7 @@ def dem_predict_main():
 
     LATEST_CKPT = tf.train.latest_checkpoint(dem_checkpoint_path)
     MODEL_FILE = LATEST_CKPT
+
     print('Loaded model at {}'.format(MODEL_FILE))
     # ------------------------------------------------------
     label = spilt_file(os.path.join(DATAB_ALL_DIR, 'label_list.txt'))

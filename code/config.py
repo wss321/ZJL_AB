@@ -10,14 +10,14 @@ TRAIN = 'class'  # Choose training pattern: 'composite' or 'class'
 WV_OR_ATTR = 'WV'  # Choose 'WV' or 'ATTR' to use word2vec or attribute
 TF_MODEL = 'alexnet'  # Choose model: 'vgg19' 'alexnet' 'densenet' 'resnet_v2_50'
 OPTIMIZER = 'adam'  # Choose optimizer: 'sgd' 'adadelta' 'momentum' 'adam' 'rmsp' 'adagrad'
-KERAS_MODEL = 'own_model'  # 'own_model' 'densenet'
+KERAS_MODEL = 'densenet'  # 'own_model' 'densenet'
 
 # Choose loss function : 'eucli_loss' 'prod_loss'  mse_loss' 'no_margin_prod_loss' 'rel_w_prod_loss' 'cross_ent_loss'
 # default :'prod_loss'
 CHOOSE_LOSS = 'eucli_loss'
 if TRAIN == 'class':
     CHOOSE_LOSS = 'cross_ent_loss'
-DEM_MODEL = 1  # 2
+DEM_MODEL = 2  # 2
 # --------------------------------------------------------------------------------------------------------------------
 
 USE_EMBEDDING = True  # whether use embedding, including attribute embedding or word2vec
@@ -137,7 +137,8 @@ if not os.path.exists(TB_LOG):
 if not os.path.exists(CKPT_PATH):
     os.makedirs(CKPT_PATH)
 
-BAET_CLASSIFY_CKPT_FILE = '{}/best_one.ckpt'.format(CKPT_PATH)
+# BAET_CLASSIFY_CKPT_FILE = '{}/best_one.ckpt'.format(CKPT_PATH)
+BAET_CLASSIFY_CKPT_FILE = 'G:\kaggle-output\checkoutpointbest_one.ckpt'
 MODEL_DIR = '{}/keras_train.h5'.format(MODEL_FOLDER)
 # --------------------------------------------
 if __name__ == '__main__':

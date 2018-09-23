@@ -18,7 +18,7 @@ if __name__ == '__main__':
     print(' *************** 5/7.train_DEM *************** ')
     from train_DEM import train_dem_main
 
-    train_dem_main(epoches=10000)
+    train_dem_main(epoches=2000)
     print(' *************** 6/7.create_test_visual_feature *************** ')
     from create_test_visual_feature import create_test_visual_feature_main
 

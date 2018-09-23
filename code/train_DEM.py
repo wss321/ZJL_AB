@@ -8,8 +8,9 @@ from kNN_cosine_or_euclideanl import kNNClassify
 from training_utils import print_in_file
 from word2vec_interface import find_word_vec
 from attr_interface import find_attr_vec
+from concentrate_interface import find_concentrate_vec
 import pickle
-from config import OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL, TRAINING_DIR
+from config import OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL
 from create_train_visual_feature import TRAIN_FEATURE_PATH
 
 tf.set_random_seed(0)
@@ -101,17 +102,20 @@ def train_dem_main(epoches=100000):
     cosin_lr = 0.0
     eu_lr = 1.0
     reg_r = 1e-5
-
+    hidden_layer = 1024
     # ---------------------------
 
     if attr_or_word2vec == 'attr':
-        fn = find_attr_vec
+        find_vec = find_attr_vec
         embedding_size = 24
     elif attr_or_word2vec == 'word2vec':
-        fn = find_word_vec
+        find_vec = find_word_vec
         embedding_size = 300
+    else:
+        find_vec = find_concentrate_vec
+        embedding_size = 324
     # elif attr_or_word2vec == 'text':
-    #     fn = find_text_vec
+    #     find_vec = find_text_vec
     #     embedding_size = text_vec.shape[1]
 
     # 加载数据
@@ -131,7 +135,7 @@ def train_dem_main(epoches=100000):
     for i in test_id:
         name = all_names[i]
         test_names.append(name)
-        word_pro.append(fn(name))
+        word_pro.append(find_vec(name))
 
     test_label = []
     for i in fine_names:
@@ -148,7 +152,7 @@ def train_dem_main(epoches=100000):
     train_data = []
     for fine_name in tqdm.tqdm(fine_names, ):
         if fine_name not in test_names:
-            train_data.append([np.asarray(vf_data[idx]), fn(fine_name)])
+            train_data.append([np.asarray(vf_data[idx]), find_vec(fine_name)])
             # print(type(vf_data[idx]))
         else:
             x_test.append(vf_data[idx])
@@ -174,7 +178,6 @@ def train_dem_main(epoches=100000):
     test_label = np.asarray(test_label)
 
     def compute_accuracy1(test_word, test_visual, test_id, test_label):
-        # global left_w1
         word_pre = sess.run(left_w1, feed_dict={word_features: test_word})
         test_id = np.squeeze(np.asarray(test_id))
         outpre = [0] * test_visual.shape[0]
@@ -191,7 +194,6 @@ def train_dem_main(epoches=100000):
         return result
 
     def compute_accuracy2(test_word, test_visual, test_id, test_label):
-        # global left_w2
         word_pre = sess.run(left_w2, feed_dict={word_features: test_word})
         test_id = np.squeeze(np.asarray(test_id))
         outpre = [0] * test_visual.shape[0]
@@ -226,6 +228,7 @@ def train_dem_main(epoches=100000):
     word_features = tf.placeholder(tf.float32, [None, embedding_size])
     visual_features = tf.placeholder(tf.float32, [None, visual_features_size])
     if DEM_MODEL == 1:
+        print('------ USING DEM MODEL 1 --------- ')
         W_left_w1 = weight_variable([train_wordvec.shape[1], visual_features_size])
         b_left_w1 = bias_variable([visual_features_size])
         left_w1 = tf.matmul(word_features, W_left_w1) + b_left_w1
@@ -234,10 +237,26 @@ def train_dem_main(epoches=100000):
         loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w1 - visual_features))),
                         tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w1, visual_features)))))
         evaluate_fn = compute_accuracy1
+    elif DEM_MODEL == 2:
+        print('------ USING DEM MODEL 2 --------- ')
+        W_left_w1 = weight_variable([train_wordvec.shape[1], hidden_layer])
+        W_left_w2 = weight_variable([hidden_layer, visual_features_size])
+        b_left_w1 = bias_variable([hidden_layer])
+        b_left_w2 = bias_variable([visual_features_size])
+
+        left_w1 = tf.nn.relu(tf.matmul(word_features, W_left_w1) + b_left_w1)
+        left_w2 = tf.matmul(left_w1, W_left_w2) + b_left_w2
+
+        regular_w = (tf.nn.l2_loss(W_left_w1) + tf.nn.l2_loss(b_left_w1) + tf.nn.l2_loss(W_left_w2) + tf.nn.l2_loss(
+            b_left_w2))
+        loss_w = tf.add(tf.multiply(eu_lr, tf.reduce_mean(tf.square(left_w2 - visual_features))),
+                        tf.multiply(cosin_lr, tf.reduce_mean(tf.square(cosine_dis(left_w2, visual_features)))))
+        evaluate_fn = compute_accuracy2
     else:
-        W_left_w1 = weight_variable([train_wordvec.shape[1], 1024])
-        W_left_w2 = weight_variable([1024, visual_features_size])
-        b_left_w1 = bias_variable([1024])
+        print('------ USING DEM MODEL 2 --------- ')
+        W_left_w1 = weight_variable([train_wordvec.shape[1], hidden_layer])
+        W_left_w2 = weight_variable([hidden_layer, visual_features_size])
+        b_left_w1 = bias_variable([hidden_layer])
         b_left_w2 = bias_variable([visual_features_size])
 
         left_w1 = tf.nn.relu(tf.matmul(word_features, W_left_w1) + b_left_w1)
@@ -251,9 +270,15 @@ def train_dem_main(epoches=100000):
 
     # 岭回归
     loss_w += reg_r * regular_w
+    global_step = tf.Variable(0)
+    learning_rate = 0.0001
+    train_step = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(loss_w, global_step=global_step)
 
-    train_step = tf.train.AdamOptimizer(0.0001).minimize(loss_w)
-
+    decay = tf.train.exponential_decay(learning_rate,
+                                       global_step,
+                                       decay_steps=10,
+                                       decay_rate=0.8,
+                                       staircase=True)
     # Initialize an saver for store model checkpoints
     saver = tf.train.Saver(max_to_keep=MAX_TO_KEEP)
 
@@ -266,9 +291,9 @@ def train_dem_main(epoches=100000):
         if LOAD_CKPT and LOAD_CKPT_FILE:
             print_in_file('Loading checkpoint at {}'.format(LOAD_CKPT_FILE), OUTPUT_FILE_NAME)
             saver.restore(sess, LOAD_CKPT_FILE)  # LOAD_CKPT_FILE
-        step = 0
         for epoch in range(epoches):
             iter_ = data_iterator(batch_size)
+            sess.run(decay, feed_dict={global_step: epoch})
             for word_batch_val, visual_batch_val in iter_:
                 sess.run(train_step, feed_dict={word_features: word_batch_val, visual_features: visual_batch_val})
                 train_loss = sess.run(loss_w,

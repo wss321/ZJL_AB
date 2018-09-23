@@ -9,7 +9,7 @@ import pandas as pd
 from create_pickle_file import spilt_file, AB_META
 from create_test_visual_feature import TEST_FEATURE_PATH
 from train_DEM import dem_checkpoint_path, KERAS_MODEL, dem_attr_word2vec_concentrate, TRAIN_FEATURE_PATH, find_concentrate_vec, \
-    find_word_vec, find_attr_vec, kNNClassify, classes
+    find_word_vec, find_attr_vec, kNNClassify, dem_hidden_layer
 
 np.random.seed(0)
 
@@ -161,9 +161,9 @@ def dem_predict_main():
         left_w1 = tf.matmul(word_features, W_left_w1) + b_left_w1
         evaluate_fn = predict1
     else:
-        W_left_w1 = weight_variable([embedding_size, 1024])
-        W_left_w2 = weight_variable([1024, visual_features_size])
-        b_left_w1 = bias_variable([1024])
+        W_left_w1 = weight_variable([embedding_size, dem_hidden_layer])
+        W_left_w2 = weight_variable([dem_hidden_layer, visual_features_size])
+        b_left_w1 = bias_variable([dem_hidden_layer])
         b_left_w2 = bias_variable([visual_features_size])
 
         left_w1 = tf.nn.relu(tf.matmul(word_features, W_left_w1) + b_left_w1)

@@ -144,8 +144,8 @@ if not os.path.exists(TB_LOG):
 if not os.path.exists(CKPT_PATH):
     os.makedirs(CKPT_PATH)
 
-# BEST_CLASSIFY_CKPT_FILE = '{}/best_one.ckpt'.format(CKPT_PATH)
-BEST_CLASSIFY_CKPT_FILE = 'G:\kaggle-output\checkoutpointbest_one.ckpt'
+BEST_CLASSIFY_CKPT_FILE = '{}/best_one.ckpt'.format(CKPT_PATH)
+# BEST_CLASSIFY_CKPT_FILE = 'G:\kaggle-output\checkoutpointbest_one.ckpt'
 MODEL_DIR = '{}/keras_train.h5'.format(MODEL_FOLDER)
 # --------------------------------------------
 

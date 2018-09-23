@@ -11,7 +11,8 @@ from attr_interface import find_attr_vec
 from concentrate_interface import find_concentrate_vec
 import pickle
 from config import DEM_OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL, dem_init_lr, lr_decay, \
-    dem_batch_size, dem_split_rate, dem_cosine_loss_r, dem_eu_loss_r, dem_reg_loss_r, dem_hidden_layer,DEM_LOAD_CKPT
+    dem_batch_size, dem_split_rate, dem_cosine_loss_r, dem_eu_loss_r, dem_reg_loss_r, dem_hidden_layer, DEM_LOAD_CKPT, \
+    dem_dis_func, dem_attr_word2vec_concentrate
 from create_train_visual_feature import TRAIN_FEATURE_PATH
 
 tf.set_random_seed(0)
@@ -26,7 +27,6 @@ def read_pickle_file(filename):
     """Reads a pickle file using the latin1 encoding"""
     with open(filename, 'rb') as f:
         u = pickle._Unpickler(f)
-        # u.encoding = 'latin1'
         p = u.load()
     return p
 
@@ -61,8 +61,6 @@ def spilt_class_file(file_path):
 
 classes = spilt_class_file(os.path.join(DATAB_ALL_DIR, 'label_list.txt'))
 
-attr_or_word2vec = 'word2vec'  # 'attr' 'word2vec' and else
-
 
 def train_dem_main(epoches=2000):
     def data_iterator(batch_size):
@@ -85,10 +83,10 @@ def train_dem_main(epoches=2000):
     else:
         visual_features_size = 1024
 
-    if attr_or_word2vec == 'attr':
+    if dem_attr_word2vec_concentrate == 'attr':
         find_vec = find_attr_vec
         embedding_size = 24
-    elif attr_or_word2vec == 'word2vec':
+    elif dem_attr_word2vec_concentrate == 'word2vec':
         find_vec = find_word_vec
         embedding_size = 300
     else:
@@ -156,7 +154,7 @@ def train_dem_main(epoches=2000):
         test_label = np.squeeze(np.asarray(test_label))
         test_label = test_label.astype("float32")
         for i in range(test_visual.shape[0]):
-            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1)
+            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1, dis_func=dem_dis_func)
             outpre[i] = outputLabel
         print(outpre)
         correct_prediction = tf.equal(outpre, test_label)
@@ -172,7 +170,7 @@ def train_dem_main(epoches=2000):
         test_label = np.squeeze(np.asarray(test_label))
         test_label = test_label.astype("float32")
         for i in range(test_visual.shape[0]):
-            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1)
+            outputLabel = kNNClassify(test_visual[i, :], word_pre, test_id, 1, dis_func=dem_dis_func)
             outpre[i] = outputLabel
         print(outpre)
         correct_prediction = tf.equal(outpre, test_label)

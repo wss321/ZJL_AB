@@ -36,12 +36,24 @@ def euclidean_distance(v1, v2):
     return dis
 
 
+def mix_distance(v1, v2, cr=1.0, er=1e-1):
+    cosine_dis = cr * np.square(cosine_distance(v1, v2))
+    euclidean_dis = er * euclidean_distance(v1, v2)
+    return cosine_dis + euclidean_dis
+
+
 # classify using kNN
-def kNNClassify(newInput, dataSet, labels, k):
+def kNNClassify(newInput, dataSet, labels, k, dis_func='cosine'):
     global distance
     distance = [0] * dataSet.shape[0]
+    if dis_func == 'cosine':
+        dis_func = cosine_distance
+    if dis_func == 'mix':
+        dis_func = mix_distance
+    else:
+        dis_func = euclidean_distance
     for i in range(dataSet.shape[0]):
-        distance[i] = cosine_distance(newInput, dataSet[i])
+        distance[i] = dis_func(newInput, dataSet[i])
 
     # step 2: sort the distance
     # argsort() returns the indices that would sort an array in a ascending order  

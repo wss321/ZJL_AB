@@ -67,6 +67,8 @@ dem_cosine_loss_r = 0.0
 dem_eu_loss_r = 1.0
 dem_reg_loss_r = 1e-5
 dem_hidden_layer = 1024
+dem_dis_func = 'cosine'  # 'mix' or 'euclidean' 'cosine'
+dem_attr_word2vec_concentrate = 'concentrate'  # 'attr'  'word2vec' and 'concentrate'
 # ---------------------
 
 # ----------------------  Dir Information  ----------------------
@@ -79,6 +81,14 @@ DATAA_TRAIN_DIR = r'../data/DatasetA/train'  # Training image data dir
 DATAB_ALL_DIR = r'../data/DatasetB'  # Dataset dir
 DATAB_TRAIN_DIR = r'../data/DatasetB/train'  # Training image data dir
 TEST_DATA_DIR = r'../data/DatasetB/test'  # Test image data dir
+
+# --------- for kaggle -------------------------------------------------
+# DATAA_ALL_DIR = r'../input/tianchi-2018-dataset/dataseta_train_20180813/DatasetA_train_20180813/'  # Dataset dir
+# DATAA_TRAIN_DIR = r'../input/tianchi-2018-dataset/dataseta_train_20180813/DatasetA_train_20180813/train'  # Training image data dir
+# DATAB_ALL_DIR = r'../input/zjl-datasetb/datasetb_20180919/DatasetB_20180919/'  # Dataset dir
+# DATAB_TRAIN_DIR = r'../input/zjl-datasetb/datasetb_20180919/DatasetB_20180919/train/'  # Training image data dir
+# TEST_DATA_DIR = r'../input/zjl-datasetb/datasetb_20180919/DatasetB_20180919/test/'  # Test image data dir
+
 SUBMIT_PATH = r'../data/Submit.txt'
 DEM_OUTPUT_FILES_FOLDER = '{}/DEM/logs'.format(TRAINING_DIR)  # Training logs dir
 
@@ -101,7 +111,8 @@ SAVE_VEC_PKL = '{}/vectorizer.pickle'.format(PKL_DIR)
 ALL_LABLES_FILE = '{}/all_labels.pickle'.format(PKL_DIR)
 
 # -----------------------  Create dir  -------------------------------------
-
+if not os.path.exists(TRAINING_DIR):
+    os.makedirs(TRAINING_DIR)
 if not os.path.exists(PKL_DIR):
     os.makedirs(PKL_DIR)
 if not os.path.exists(DEM_OUTPUT_FILES_FOLDER):

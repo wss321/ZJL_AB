@@ -8,7 +8,7 @@ from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL, ZERO_SHOT_CLASSES, SUB
 import pandas as pd
 from create_pickle_file import spilt_file, AB_META
 from create_test_visual_feature import TEST_FEATURE_PATH
-from train_DEM import dem_checkpoint_path, KERAS_MODEL, attr_or_word2vec, TRAIN_FEATURE_PATH, find_concentrate_vec, \
+from train_DEM import dem_checkpoint_path, KERAS_MODEL, dem_attr_word2vec_concentrate, TRAIN_FEATURE_PATH, find_concentrate_vec, \
     find_word_vec, find_attr_vec, kNNClassify, classes
 
 np.random.seed(0)
@@ -103,10 +103,10 @@ def dem_predict_main():
         visual_features_size = 504
     else:
         visual_features_size = 1024
-    if attr_or_word2vec == 'attr':
+    if dem_attr_word2vec_concentrate == 'attr':
         find_vec = find_attr_vec
         embedding_size = 24
-    elif attr_or_word2vec == 'word2vec':
+    elif dem_attr_word2vec_concentrate == 'word2vec':
         find_vec = find_word_vec
         embedding_size = 300
     else:

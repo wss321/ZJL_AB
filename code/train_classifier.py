@@ -8,7 +8,7 @@ def keras_train_main():
     from keras import backend as K
     from training_utils import distorted_batch
 
-    from config import num_classes, classifier_batch_size, MODEL_DIR, KERAS_MODEL, \
+    from config import num_classes, classifier_batch_size, MODEL_DIR, CLASSIFIER_MODEL, \
         OPTIMIZER, classifier_init_lr, classifier_num_epochs
     from data_generator import DataGenerator
     import keras
@@ -50,7 +50,7 @@ def keras_train_main():
         model = load_model(MODEL_DIR)
         distort_op = distorted_batch(x, IMAGE_SIZE, resize)
         print("DONE.")
-    elif KERAS_MODEL == 'densenet':
+    elif CLASSIFIER_MODEL == 'densenet':
         model = DenseNet((IMAGE_SIZE, IMAGE_SIZE, NUM_CHANNELS), depth=depth, nb_dense_block=nb_block,
                          growth_rate=growth_rate, bottleneck=True, dropout_rate=dropout_rate, reduction=reduction,
                          classes=num_classes)

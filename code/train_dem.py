@@ -4,13 +4,13 @@ import random
 import tensorflow as tf
 import tqdm
 import numpy as np
-from kNN_cosine_or_euclideanl import kNNClassify
+from knn_cosine_or_euclideanl import kNNClassify
 from training_utils import print_in_file
 from word2vec_interface import find_word_vec
 from attr_interface import find_attr_vec
 from concentrate_interface import find_concentrate_vec
 import pickle
-from config import DEM_OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, KERAS_MODEL, DEM_MODEL, dem_init_lr, lr_decay, \
+from config import DEM_OUTPUT_FILES_FOLDER, MAX_TO_KEEP, DATAB_ALL_DIR, CLASSIFIER_MODEL, DEM_MODEL, dem_init_lr, lr_decay, \
     dem_batch_size, dem_split_rate, dem_cosine_loss_r, dem_eu_loss_r, dem_reg_loss_r, dem_hidden_layer, DEM_LOAD_CKPT, \
     dem_dis_func, dem_attr_word2vec_concentrate
 from create_train_visual_feature import TRAIN_FEATURE_PATH
@@ -78,7 +78,7 @@ def train_dem_main(epoches=1000):
             word_batch = shuf_word[batch_idx:batch_idx + batch_size]
             yield word_batch, visual_batch
 
-    if KERAS_MODEL == 'densenet':
+    if CLASSIFIER_MODEL == 'densenet':
         visual_features_size = 504
     else:
         visual_features_size = 1024

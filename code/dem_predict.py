@@ -8,7 +8,7 @@ from config import MAX_TO_KEEP, DATAB_ALL_DIR, DEM_MODEL, ZERO_SHOT_CLASSES, SUB
 import pandas as pd
 from create_pickle_file import spilt_file, META
 from create_test_visual_feature import TEST_FEATURE_PATH
-from train_DEM import dem_checkpoint_path, KERAS_MODEL, dem_attr_word2vec_concentrate, TRAIN_FEATURE_PATH, \
+from train_dem import dem_checkpoint_path, CLASSIFIER_MODEL, dem_attr_word2vec_concentrate, TRAIN_FEATURE_PATH, \
     find_concentrate_vec, weight_variable, bias_variable, \
     find_word_vec, find_attr_vec, kNNClassify, dem_hidden_layer
 from create_pickle_file import read_pickle_file
@@ -73,7 +73,7 @@ def dem_predict_main():
         test_class = list(set(all_class))
     print('There are {} test classes:\n{}'.format(len(test_class), test_class))
 
-    if KERAS_MODEL == 'densenet':
+    if CLASSIFIER_MODEL == 'densenet':
         visual_features_size = 504
     else:
         visual_features_size = 1024

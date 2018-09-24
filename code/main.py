@@ -12,7 +12,7 @@ if __name__ == '__main__':
 
     read_zjl_main()
     print(' *************** 3/7.keras_train *************** ')
-    from keras_train import keras_train_main
+    from train_classifier import keras_train_main
 
     keras_train_main()
     print(' *************** 4/7.create_train_visual_feature *************** ')
@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     create_train_visual_feature_main()
     print(' *************** 5/7.train_DEM *************** ')
-    from train_DEM import train_dem_main
+    from train_dem import train_dem_main
 
     train_dem_main(epoches=1000)
     print(' *************** 6/7.create_test_visual_feature *************** ')
@@ -28,7 +28,7 @@ if __name__ == '__main__':
 
     create_test_visual_feature_main()
     print(' *************** 7/7.DEM_predict *************** ')
-    from DEM_predict import dem_predict_main
+    from dem_predict import dem_predict_main
 
     dem_predict_main()
     print(' *************** ALL DONE. *************** .')

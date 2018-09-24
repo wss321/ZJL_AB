@@ -9,11 +9,11 @@ import os
 TRAIN = 'class'  # Choose training pattern: 'composite' or 'class'
 WV_OR_ATTR = 'WV'  # Choose 'WV' or 'ATTR' to use word2vec or attribute
 OPTIMIZER = 'adam'  # Choose optimizer: 'sgd' 'adam'
-KERAS_MODEL = 'densenet'  # 'own_model' 'densenet'
+CLASSIFIER_MODEL = 'densenet'  # 'own_model' 'densenet'
 
 DEM_MODEL = 2  # 2
 
-if KERAS_MODEL == 'densenet':
+if CLASSIFIER_MODEL == 'densenet':
     VISUAL_SIZE = 504
     last_layer = 'global_average_pooling2d_1'
 else:
@@ -133,9 +133,9 @@ if not os.path.exists(DEM_OUTPUT_FILES_FOLDER):
 # ----------------------------------------------------------------------------
 
 # -------- config of keras_train classifier ----------
-MODEL_FOLDER = r'{}/classifier/{}/{}/model/'.format(TRAINING_DIR, KERAS_MODEL, OPTIMIZER)  # 模型保存地址
-TB_LOG = '{}/classifier/{}/{}/log/'.format(TRAINING_DIR, KERAS_MODEL, OPTIMIZER)  # tensorbord 文件地址
-CKPT_PATH = '{}/classifier/{}/{}/checkoutpoint'.format(TRAINING_DIR, KERAS_MODEL, OPTIMIZER)  # 查看点路径
+MODEL_FOLDER = r'{}/classifier/{}/{}/model/'.format(TRAINING_DIR, CLASSIFIER_MODEL, OPTIMIZER)  # 模型保存地址
+TB_LOG = '{}/classifier/{}/{}/log/'.format(TRAINING_DIR, CLASSIFIER_MODEL, OPTIMIZER)  # tensorbord 文件地址
+CKPT_PATH = '{}/classifier/{}/{}/checkoutpoint'.format(TRAINING_DIR, CLASSIFIER_MODEL, OPTIMIZER)  # 查看点路径
 
 if not os.path.exists(MODEL_FOLDER):
     os.makedirs(MODEL_FOLDER)
